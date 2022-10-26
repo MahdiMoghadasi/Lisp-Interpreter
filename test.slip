@@ -1,0 +1,306 @@
+
+ghci> sexpOf        (let ((x 1)) x)                                                               
+Scons (Ssym "let") 
+        (Scons (Scons 
+                    (Scons (Ssym "x") (Scons (Snum 1) Snil)
+                    ) Snil
+                ) 
+                (Scons (Ssym "x") Snil)
+        )
+
+List: [Ssym "let"    ,Scons (Scons Snil (Ssym "x")) (Snum 1),Ssym "x"]
+--------------------------------------------------------------------------
+(let (          (y 10) (  (div2 x) (/ x 2)     )               )     (div2 y) )
+
+
+ghci> sexpOf (let (          (y 10) (  (div2 x) (/ x 2)     )               )     (div2 y) )
+
+Scons (Ssym "let") 
+            (Scons 
+                (Scons 
+                        (Scons (Ssym "y") (Scons (Snum 10) Snil)) 
+                                (Scons 
+                                    (Scons
+                                        (Scons (Ssym "div2") (Scons (Ssym "x") Snil)) 
+                                            (Scons 
+                                                (Scons (Ssym "/") (Scons (Ssym "x") (Scons (Snum 2) Snil))) Snil
+                                            )
+                                    ) Snil
+                                )
+                ) 
+                (Scons (Scons (Ssym "div2") (Scons (Ssym "y") Snil)) Snil)
+            )
+--------------------------------------------------------------------------
+
+(let (              (   (even xs)
+                        (
+                            match xs (nil 0) ((add x xs) (odd xs)) 
+                        )
+                    )
+                    (   
+                        (odd xs)
+                            (
+                                match xs (nil 1) ((add x xs) (even xs))
+                            )
+                    )
+    )
+    (odd (list 2 3 4))
+)
+
+sexpOf "(let (((even xs) (match xs (nil 0) ((add x xs) (odd xs))))((odd xs)(match xs (nil 1) ((add x xs) (even xs)))))(odd (list 2 3 4)))"
+Scons (Ssym "let") 
+    (Scons (Scons (Scons (Scons 
+                            (Ssym "even") 
+                                (Scons (Ssym "xs") Snil)
+                        ) 
+                            (Scons (Scons
+                                        (Ssym "match") 
+                                            (Scons (Ssym "xs") 
+                                                (Scons (Scons 
+                                                            (Ssym "nil") 
+                                                            (Scons (Snum 0) Snil)
+                                                        ) 
+                                                        (Scons (Scons (Scons 
+                                                                            (Ssym "add") (Scons (Ssym "x") (Scons (Ssym "xs") Snil))
+                                                                        ) 
+                                                                        (Scons (Scons 
+                                                                                    (Ssym "odd")
+                                                                                    (Scons (Ssym "xs") Snil)
+                                                                                ) 
+                                                                    Snil)
+                                                                )
+                                                    Snil)
+                                                )
+                                            )
+                                    )
+                            Snil)
+                    ) 
+                    (Scons (Scons (Scons 
+                                        (Ssym "odd") (Scons (Ssym "xs") Snil)
+                                    ) 
+                                    (Scons (Scons
+                                                (Ssym "match") (Scons (Ssym "xs") 
+                                                (Scons (Scons 
+                                                            (Ssym "nil") 
+                                                            (Scons (Snum 1) Snil)
+                                                        ) 
+                                                        (Scons (Scons (Scons (Ssym "add") 
+                                                        (Scons (Ssym "x") 
+                                                                (Scons (Ssym "xs") Snil)
+                                                        )
+                                                ) 
+                                                (Scons (Scons 
+                                                            (Ssym "even") 
+                                                            (Scons (Ssym "xs") Snil)
+                                                        ) 
+                                            Snil)
+                                                                )Snil)
+                                                )               )
+                                            ) 
+                            Snil))
+                    Snil)
+            ) 
+            (Scons (Scons (Ssym "odd")
+                        (Scons (Scons (Ssym "list") 
+                    (Scons (Snum 2)
+                            (Scons (Snum 3) (Scons (Snum 4) Snil))
+                    )
+                                )
+                        Snil)
+                    ) 
+        Snil)
+    )
+----------------------------------------------------------------------------------------------------------------------
+
+ghci> sexpOf  "((+ 1) 2)"
+Scons (Scons (Ssym "+") (Scons (Snum 1) Snil))
+        (Scons (Snum 2) Snil)
+
+===========================
+ghci> sexpOf "(+ 1 2)"
+Scons (Ssym "+") (Scons (Snum 1) (Scons (Snum 2) Snil))
+============================
+sfoldl (\ fun arg -> Lcall fun (s2l arg)) (s2l (\ fun arg -> Lcall fun (s2l arg))) Scons (Ssym "+") (Scons (Snum 1) (Scons (Snum 2) Snil))
+=========================================
+
+((+ 2  4) 6)
+
+(((+ 2  4) 6) 8)
+
+
+
+======================================
+
+
+((fn (x) x) 2)                          ; ↝ 2
+
+(\x -> x) 2
+\x y -> * x y) 3 5 
+
+(((fn (x) (fn (y) (* x y)))
+  3)
+ 5)                                     ; ↝ 15
+=================================================
+
+((fn (x) x) 2)
+
+(Llambda "x" (x))
+(fn (x) x)
+
+\x (\y ([x . y]))
+
+Llambda "x" (Llambda "y" (Ladd (Lref "x") (Lref "y")))
+
+
+====================================================
+((       
+    (fn (x) (fn (y)         (* x y)))
+  3)
+ 5)
+ ============
+ (fn (x) ( * 2 x))
+ \x -> 2 * x en haskell
+ ============
+Llambda (Lref "x") (Lref "x") 
+ lexpOf  "(fn (x) x)"
+ Lcall (Lcall (Lref "fn") (Lref "x")) (Lref "x")
+ [Ssym "fn",Scons (Ssym "x") Snil,Ssym "x"]
+ ================ 
+
+ [Ssym "fn",
+ Scons (Ssym "x") Snil,
+ Scons (Ssym "fn") (Scons (Scons (Ssym "y") Snil) (Scons (Scons (Ssym "*") (Scons (Ssym "x") (Scons (Ssym "y") Snil))) Snil))]
+ghci> elemsOfsexp (sexpOf "(((fn (x) (fn (y) (* x y))) 3 ) 5 )")
+[Scons (Scons (Ssym "fn") (Scons (Scons (Ssym "x") Snil) (Scons (Scons (Ssym "fn") (Scons (Scons (Ssym "y") Snil) (Scons (Scons (Ssym "*") (Scons (Ssym "x") (Scons (Ssym "y") Snil))) Snil))) Snil))) (Scons (Snum 3) Snil)
+,Snum 5]
+[Scons (Scons (Ssym "fn") (Scons (Scons (Ssym "x") Snil) (Scons (Scons (Ssym "fn") (Scons (Scons (Ssym "y") Snil) (Scons (Scons (Ssym "*") (Scons (Ssym "x") (Scons (Ssym "y") Snil))) Snil))) Snil))) (Scons (Snum 3) Snil),Snum 5]
+
+
+
+(((fn (x) (fn (y) (* x y))) 3) 5)
+
+
+==========================================
+ghci> lexpOf "(fn (x) (* x 2))"
+
+Llambda "x" (Lcall (Lcall (Lref "*") (Lref "x")) (Lnum 2))
+
+
+Dlambda (Dcall (Dcall (Dref Idx) (Dref Idx)) (Dnum 2))
+
+Dlambda (Dcall (Dcall (Dref 2) (Dref 0)) (Dnum 2))
+===============================================
+(((fn (x) (fn (y) (* x y))) 3) 5) 
+ghci> dexpOf "(((fn (x) (fn (y) (* x y))) 3) 5) "
+Dcall (Dcall
+ (Dlambda (Dlambda (Dcall (Dcall (Dref 3) (Dref 1)) (Dref 0)))) 
+ (Dnum 3)) 
+ (Dnum 5)
+================================================
+ghci> dexpOf "((fn (x) x) 2)"
+Dcall (Dlambda (Dref 0)) (Dnum 2)
+=================================================
+Dcall (Dcall
+ (Dlambda (Dlambda (Dcall 
+ (Dcall Vfun (\ (Vnum x) -> Vfun (\ (Vnum y) -> Vnum (x * y))) 
+ (Dref 1)) (Dref 0)))) 
+ (Vnum 3)) 
+ (Vnum 5)
+    envVar [("Y","x","+", "*", "/", "-")]
+    envVals
+    env0 = [("+", Vfun (\ (Vnum x) -> Vfun (\ (Vnum y) -> Vnum (x + y)))),
+            ("*", Vfun (\ (Vnum x) -> Vfun (\ (Vnum y) -> Vnum (x * y)))),
+            ("/", Vfun (\ (Vnum x) -> Vfun (\ (Vnum y) -> Vnum (x `div` y)))),
+            ("-", Vfun (\ (Vnum x) -> Vfun (\ (Vnum y) -> Vnum (x - y))))]
+=====================================================
+
+ghci> lexpOf  "((fn (x) x) 2)"
+
+Lcall (Llambda "x" (Lref "x")) (Lnum 2)
+
+
+
+
+ghci> dexpOf  "((fn (x) x) 2)"
+Dcall (Dlambda (Dref 0)) (Dnum 2)
+
+
+ghci> valOf   "((fn (x) x) 2)"
+eval envValues (Dref n) = envValues !! n
+                                        
+                (Dlambda (Dref 0)) =    Vfun (\v -> eval (v:enValues) (Dref 0))
+                                        Vfun (\v -> v)
+eval envValues (Dlambda dexp) =   Vfun (\v -> eval (v:envValues) dexp)
+
+envValues= [v,
+            Vfun (\ (Vnum x) -> Vfun (\ (Vnum y) -> Vnum (x + y)))),
+            Vfun (\ (Vnum x) -> Vfun (\ (Vnum y) -> Vnum (x * y)))),
+            Vfun (\ (Vnum x) -> Vfun (\ (Vnum y) -> Vnum (x `div` y)))),
+            Vfun (\ (Vnum x) -> Vfun (\ (Vnum y) -> Vnum (x - y))))]
+===============================================================================
+ghci> sexpOf "(list nil)"
+Scons (Ssym "list") (Scons (Ssym "nil") Snil)
+ghci> elemsOfsexp (sexpOf "(list nil)")
+[Ssym "list",Ssym "nil"]
+ghci> lexpOf "(list nil)"
+Lcall (Lref "list") Lnil  /pas correct
+
+nil -> []
+Ladd (Lnil Lnil)                          ;    [[]]
+(list nil)  = Ladd (Lnil Lnil)            ; ↝ [[]]       (add nil add(nil nil)) == (add (add nil nil) nil)
+(add (add nil nil) nil)                   ;  [[] . []]    
+(add nil add(nil nil))                    ;  [[] . []]
+
+(add (add(1 nil)) nil) ->     1 . []   [1 . []]       ; [[1 . []]]
+(add (add 1 2) nil)                     ; ↝ [[1 . 2]]
+(add [1 . 2] nil) [[1 . 2]]
+=======================================================================
+(add nil nil)  --> [ [ ] .[ ] ] //////////////THIS IS WHAT WE WANT
+(add 1 nil) ---->       [1 . [] ]      
+(add 1 2)   ----->        [ 1 . 2 ] 
+Si l'on regarde le tout, l'expression 
+(add (add 1 2) nil)    , suivi de la liste vide.
+[[1 . 2] . []]
+(add (add 1 2) nil)   s'évalue donc à [ [ 1 . 2] . [] ] ≡ [ [ 1 . 2 ] ]
+
+
+(add (add 1 2) nil)   s'évalue donc à [ [ 1 . 2] . [] ] ≡ [ [ 1 . 2 ] ]
+nil = []
+
+======
+add (nil nil) ==> NOT VALID
+add (nil nil) --> NOT VALID
+
+[v1 . [v2 . []]]        [V1 . [V2]] [V1 .V2]
+
+[v1 . [v2 . [v3 . v4]]] 
+[V1 . V2 .V3 . V4 ]
+Donc [v1 v2] est équivalent à [v1 . v2]
+
+[1 . [] ] =     [ 1 ]
+-===========================================
+(add 1 (add 2 nil)) ----->  [1 . 2] --------->   [1 . [2 . []]] ---> 
+ [1 . [2 . []]]   [1 . 2] 
+(add 4 (add 1 (add 2 nil))) ------> [4 . 1 .2] 
+
+(add (add 1 2) nil)  -----> [[1 . 2]] SURE
+(add (add (add 4 1) 2) nil) --------> [[[4 . 1 . 2]]] SURE
+===============================================
+
+ghci> elemsOfsexp (sexpOf "(add 1 nil)")
+[Ssym "add",Snum 1,Ssym "nil"]
+
+
+ghci> elemsOfsexp (sexpOf "(add nil 1)")
+[Ssym "add",Ssym "nil",Snum 1]
+
+ghci> elemsOfsexp (sexpOf "(add (add nil 1) 2)")
+[Ssym "add",Scons (Ssym "add") (Scons (Ssym "nil") (Scons (Snum 1) Snil)),Snum 2]
+
+
+ghci> elemsOfsexp (sexpOf "(add 2 (add nil 1))")
+[Ssym "add",Snum 2,Scons (Ssym "add") (Scons (Ssym "nil") (Scons (Snum 1) Snil))]
+
+
+==========
+

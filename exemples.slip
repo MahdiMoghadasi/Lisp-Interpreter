@@ -1,0 +1,23 @@
+;;; Quelques exemples.                  -*- mode: lisp-data; coding: utf-8 -*-
+
+2                                       ; ↝ 2
++                                       ; ↝ <function>
+(+ 2 4)                                 ; ↝ 6
+
+((fn (x) x) 2)                          ; ↝ 2
+
+(((fn (x) (fn (y) (* x y)))
+  3)
+ 5)                                     ; ↝ 15
+
+(list nil)                              ; ↝ [[]]
+(add (add 1 2) nil)                     ; ↝ [[1 . 2]]
+    [[1 2]]
+(let ((x 1)) x)                         ; ↝ 1
+
+(match (add 1 2) (nil 1) ((add x y) (+ x y))) ; ↝ 3
+(match nil (nil 1) ((add x y) (+ x y)))       ; ↝ 1
+
+(let (((f x y) (* (+ x 1) y))) (f 5 6)) ; ↝ 36
+
+(let ((* +) (/ -)) (* 5 (/ 3 1)))       ; ↝ 7
